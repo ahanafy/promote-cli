@@ -54,14 +54,10 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-
 		// Search config in home directory with name ".promote-cli" (without extension).
-		viper.AddConfigPath(home)
+		viper.AddConfigPath("./")
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".promote-cli")
+		viper.SetConfigName("promote-cli")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

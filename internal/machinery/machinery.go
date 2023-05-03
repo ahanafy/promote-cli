@@ -35,13 +35,24 @@ func Start(check string) {
 	// get the resolved environments.
 	resolvedEnvironments := getResolvedEnvironments(environments, repo)
 
-	printCurrentState(resolvedEnvironments)
-
 	result := promotionSafety(check, resolvedEnvironments)
 	utils.Infof("Safe to Promote: %t", result)
 	if !result {
 		os.Exit(1)
 	}
+}
+
+func View() {
+	gitpath := "./"
+
+	// if the user has specified a gitpath, use that instead of the default
+	// open the git repo
+	repo := openRepo(gitpath)
+
+	// get the environments from the config file.
+	environments := viper.GetStringSlice("environments")
+	resolvedEnvironments := getResolvedEnvironments(environments, repo)
+	printCurrentState(resolvedEnvironments)
 }
 
 func getResolvedEnvironments(environments []string, repo *git.Repository) []Environments {
