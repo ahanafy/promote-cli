@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/main.go",
-      "args": ["--config", "./promote-cli.yaml", "--check", "development"],
+        "args": ["promote", "--config", "./promote-cli.yaml", "--check", "development"],
       "console": "internalConsole"
     }
   ]

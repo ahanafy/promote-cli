@@ -23,7 +23,7 @@ build:
 
 .PHONY: run
 run: build
-	"./bin/${BINARY_NAME}-${GOOS}" --config promote-cli.yaml --check development
+	"./bin/${BINARY_NAME}-${GOOS}" promote --config promote-cli.yaml --check development
 
 .PHONY: clean
 clean:

@@ -13,23 +13,16 @@ import (
 
 var (
 	cfgFile string
-	Check   string
 )
 
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:   "promote-cli",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) {},
-	Run: start,
+	Short: "A cli tool to check if it is safe to promote to an environment",
+	Long: `A cli tool to check if it is safe to promote to an environment.
+	This tool will check if the environment you are promoting to is ahead of the environment you are promoting from.
+	To use this tool you need to have a git repository with tags for each environment.
+	`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -49,10 +42,6 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.promote-cli.yaml)")
-
-	rootCmd.Flags().StringVarP(&Check, "check", "c", "", "Environment to check if promote-cli (required)")
-	err := rootCmd.MarkFlagRequired("check")
-	cobra.CheckErr(err)
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

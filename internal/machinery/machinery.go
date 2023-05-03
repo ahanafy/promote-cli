@@ -1,4 +1,4 @@
-package cmd
+package machinery
 
 import (
 	"os"
@@ -7,7 +7,6 @@ import (
 	"github.com/ahanafy/promote-cli/utils"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -18,9 +17,9 @@ type Environments struct {
 	isDefaultBranch bool   `yaml:"isDefaultBranch"`
 }
 
-func start(_ *cobra.Command, _ []string) {
-	if Check == "" {
-		utils.Errorf("--check flag is required")
+func Start(check string) {
+	if check == "" {
+		utils.Infof("--check flag is required")
 		os.Exit(0)
 	}
 
@@ -38,7 +37,7 @@ func start(_ *cobra.Command, _ []string) {
 
 	printCurrentState(resolvedEnvironments)
 
-	result := promotionSafety(Check, resolvedEnvironments)
+	result := promotionSafety(check, resolvedEnvironments)
 	utils.Infof("Safe to Promote: %t", result)
 	if !result {
 		os.Exit(1)
