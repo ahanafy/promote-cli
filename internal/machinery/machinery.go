@@ -119,7 +119,7 @@ func promotionSafety(targetEnvironment string, orderedEnvironments []Environment
 		if v.Name == targetEnvironment && v.isDefaultBranch {
 			utils.ConsoleOutputf("Target environment `%s` is already at HEAD of default branch", targetEnvironment)
 			utils.Debugf("Target environment `%s` is already at HEAD of default branch", targetEnvironment)
-			return false
+			os.Exit(1)
 		}
 		if i > 0 {
 			if v.Name == targetEnvironment && !v.isDefaultBranch && orderedEnvironments[i-1].isDefaultBranch {
