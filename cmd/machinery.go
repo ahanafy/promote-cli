@@ -49,7 +49,10 @@ func getResolvedEnvironments(environments []string, repo *git.Repository) []Envi
 	for i, v := range environments {
 		utils.Infof("Checking %s", v)
 		revHash, err := repo.ResolveRevision(plumbing.Revision(v))
-		utils.CheckIfError(err)
+		if err != nil {
+			utils.Infof("Could not find Git Tag for Environment: '%s'", v)
+			os.Exit(0)
+		}
 
 		ref, err := repo.Head()
 		utils.CheckIfError(err)
@@ -74,11 +77,16 @@ func openRepo(gitpath string) *git.Repository {
 	}
 
 	repo, err := git.PlainOpen(gitpath)
-	errMsg := err.Error()
-	if strings.Contains(errMsg, "repository does not exist") {
-		utils.Infof("Not a git repository")
-		os.Exit(1)
+
+	// if err is not nil check if the error is a "not a git repository" error.
+
+	if err != nil {
+		if strings.Contains(err.Error(), "repository does not exist") {
+			utils.Errorf("No git repository found at %s", gitpath)
+			os.Exit(0)
+		}
 	}
+
 	utils.CheckIfError(err)
 
 	return repo
