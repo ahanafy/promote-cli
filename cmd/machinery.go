@@ -39,7 +39,7 @@ func start(_ *cobra.Command, _ []string) {
 	printCurrentState(resolvedEnvironments)
 
 	result := promotionSafety(Check, resolvedEnvironments)
-	utils.Infof("Safe: %t", result)
+	utils.Infof("Safe to Promote: %t", result)
 	if !result {
 		os.Exit(1)
 	}
@@ -116,13 +116,21 @@ func promotionSafety(targetEnvironment string, orderedEnvironments []Environment
 
 func printCurrentState(orderedEnvironments []Environments) {
 	environmentProgressionLine := make([]string, 0)
+
+	// variable for the furthest environment order position.
+	furthestEnvironment := -1
+
 	for _, v := range orderedEnvironments {
 		if v.isDefaultBranch {
-			environmentProgressionLine = append(environmentProgressionLine, "(("+v.Name+"))")
-		} else {
-			environmentProgressionLine = append(environmentProgressionLine, v.Name)
+			furthestEnvironment = v.Order - 1
 		}
+		environmentProgressionLine = append(environmentProgressionLine, v.Name)
 	}
+
+	if furthestEnvironment >= 0 {
+		environmentProgressionLine[furthestEnvironment] = "[" + environmentProgressionLine[furthestEnvironment] + "]"
+	}
+
 	// join environmentProgressionLine with arrows => and print it.
 	utils.Infof(strings.Join(environmentProgressionLine, " => "))
 }
