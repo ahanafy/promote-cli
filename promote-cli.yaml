@@ -1,0 +1,2 @@
+gitpath: "./"
+environments: ["development", "nonproduction", "staging", "production"]

@@ -1,0 +1,23 @@
+{
+  "cSpell.words": [
+    "Debugf",
+    "gitpath",
+    "Infof",
+    "storer",
+    "tagrefs",
+    "Warningf"
+  ],
+  "cSpell.ignorePaths": [
+    "package-lock.json",
+    "node_modules",
+    "vscode-extension",
+    ".git/objects",
+    ".vscode",
+    ".vscode-insiders",
+    ".golangci.yml"
+  ],
+  "[makefile]": {
+    "editor.insertSpaces": false,
+    "editor.detectIndentation": false
+  }
+}
