@@ -36,6 +36,8 @@ func start(_ *cobra.Command, _ []string) {
 	// get the resolved environments.
 	resolvedEnvironments := getResolvedEnvironments(environments, repo)
 
+	printCurrentState(resolvedEnvironments)
+
 	result := promotionSafety(Check, resolvedEnvironments)
 	utils.Infof("Safe: %t", result)
 	if !result {
@@ -110,4 +112,17 @@ func promotionSafety(targetEnvironment string, orderedEnvironments []Environment
 	}
 
 	return false
+}
+
+func printCurrentState(orderedEnvironments []Environments) {
+	environmentProgressionLine := make([]string, 0)
+	for _, v := range orderedEnvironments {
+		if v.isDefaultBranch {
+			environmentProgressionLine = append(environmentProgressionLine, "(("+v.Name+"))")
+		} else {
+			environmentProgressionLine = append(environmentProgressionLine, v.Name)
+		}
+	}
+	// join environmentProgressionLine with arrows => and print it.
+	utils.Infof(strings.Join(environmentProgressionLine, " => "))
 }
