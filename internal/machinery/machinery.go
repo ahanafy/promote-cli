@@ -19,7 +19,8 @@ type Environments struct {
 
 func Start(check string) {
 	if check == "" {
-		utils.Infof("--check flag is required")
+		utils.ConsoleOutputf("--check flag is required")
+		utils.Debugf("--check flag is required")
 		os.Exit(0)
 	}
 
@@ -36,7 +37,14 @@ func Start(check string) {
 	resolvedEnvironments := getResolvedEnvironments(environments, repo)
 
 	result := promotionSafety(check, resolvedEnvironments)
-	utils.Infof("Safe to Promote: %t", result)
+	if result {
+		utils.Debugf("Safe to Promote: %s", check)
+		utils.ConsoleOutputf("Safe to Promote: %s", check)
+	} else {
+		utils.Debugf("Not Safe to Promote: %s", check)
+		utils.ConsoleOutputf("Not Safe to Promote: %s", check)
+	}
+
 	if !result {
 		os.Exit(1)
 	}
@@ -59,10 +67,12 @@ func getResolvedEnvironments(environments []string, repo *git.Repository) []Envi
 	resolvedEnvironments := make([]Environments, 0)
 
 	for i, v := range environments {
-		utils.Infof("Checking %s", v)
+		utils.ConsoleOutputf("Checking %s", v)
+		utils.Debugf("Checking %s", v)
 		revHash, err := repo.ResolveRevision(plumbing.Revision(v))
 		if err != nil {
-			utils.Infof("Could not find Git Tag for Environment: '%s'", v)
+			utils.ConsoleOutputf("Could not find Git Tag for Environment: '%s'", v)
+			utils.Debugf("Could not find Git Tag for Environment: '%s'", v)
 			os.Exit(0)
 		}
 
@@ -107,7 +117,8 @@ func openRepo(gitpath string) *git.Repository {
 func promotionSafety(targetEnvironment string, orderedEnvironments []Environments) bool {
 	for i, v := range orderedEnvironments {
 		if v.Name == targetEnvironment && v.isDefaultBranch {
-			utils.Infof("Target environment `%s` is already at HEAD of default branch", targetEnvironment)
+			utils.ConsoleOutputf("Target environment `%s` is already at HEAD of default branch", targetEnvironment)
+			utils.Debugf("Target environment `%s` is already at HEAD of default branch", targetEnvironment)
 			return false
 		}
 		if i > 0 {
@@ -142,5 +153,6 @@ func printCurrentState(orderedEnvironments []Environments) {
 	}
 
 	// join environmentProgressionLine with arrows => and print it.
-	utils.Infof(strings.Join(environmentProgressionLine, " => "))
+	utils.ConsoleOutputf(strings.Join(environmentProgressionLine, " => "))
+	utils.Debugf(strings.Join(environmentProgressionLine, " => "))
 }

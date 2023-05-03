@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var Logger *zap.Logger
@@ -11,7 +12,7 @@ var Logger *zap.Logger
 var Sugar *zap.SugaredLogger
 
 func init() {
-	Logger, _ = zap.NewDevelopment()
+	Logger, _ = zap.NewProduction()
 	Sugar = Logger.Sugar()
 }
 
@@ -23,6 +24,27 @@ func CheckIfError(err error) {
 
 	Sugar.Error(err)
 	os.Exit(1)
+}
+
+// ConsoleOutput should be used to output information to the console.
+func ConsoleOutputf(format string, args ...interface{}) {
+	var encoder zapcore.Encoder
+	var output zapcore.WriteSyncer
+
+	encoderConfig := zapcore.EncoderConfig{
+		MessageKey: "message",
+	}
+
+	encoder = zapcore.NewConsoleEncoder(encoderConfig)
+
+	// Create a console output sink
+	output = zapcore.Lock(os.Stdout)
+
+	core := zapcore.NewCore(encoder, output, zapcore.InfoLevel)
+
+	// Create a new logger
+	logger := zap.New(core)
+	logger.Sugar().Infof(format, args...)
 }
 
 // Infof should be used to describe the example commands that are about to run.

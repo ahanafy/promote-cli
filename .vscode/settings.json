@@ -3,7 +3,9 @@
     "Debugf",
     "gitpath",
     "Infof",
+    "Outputf",
     "storer",
+    "Syncer",
     "tagrefs",
     "Warningf"
   ],

@@ -11,6 +11,7 @@
       "mode": "auto",
       "program": "${workspaceFolder}/main.go",
         "args": ["promote", "--config", "./promote-cli.yaml", "--check", "development"],
+		// "args": ["view"],
       "console": "internalConsole"
     }
   ]
