@@ -5,6 +5,7 @@
     "Infof",
     "Outputf",
     "storer",
+    "stretchr",
     "Syncer",
     "tagrefs",
     "Warningf"
@@ -16,7 +17,8 @@
     ".git/objects",
     ".vscode",
     ".vscode-insiders",
-    ".golangci.yml"
+    ".golangci.yml",
+    "**/*_test.go"
   ],
   "[makefile]": {
     "editor.insertSpaces": false,

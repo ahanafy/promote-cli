@@ -10,13 +10,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Environments struct {
-	Order           int    `yaml:"order"`
-	Name            string `yaml:"name"`
-	Hash            string `yaml:"hash"`
-	isDefaultBranch bool   `yaml:"isDefaultBranch"`
-}
-
 func Start(check string) {
 	if check == "" {
 		utils.ConsoleOutputf("--check flag is required")
@@ -28,23 +21,24 @@ func Start(check string) {
 
 	// if the user has specified a gitpath, use that instead of the default
 	// open the git repo
-	repo := openRepo(gitpath)
+	repo := OpenRepo(gitpath)
 
 	// get the environments from the config file.
 	environments := viper.GetStringSlice("environments")
 
 	// get the resolved environments.
-	resolvedEnvironments := getResolvedEnvironments(environments, repo)
+	resolvedEnvironments := GetResolvedEnvironments(environments, repo)
 
-	result := promotionSafety(check, resolvedEnvironments)
-	if result {
-		utils.Debugf("Safe to Promote: %s", check)
-		utils.ConsoleOutputf("Safe to Promote: %s", check)
-	} else {
-		utils.Debugf("Not Safe to Promote: %s", check)
-		utils.ConsoleOutputf("Not Safe to Promote: %s", check)
+	result, alreadyLatest := PromotionSafety(check, resolvedEnvironments)
+	if !alreadyLatest {
+		if result {
+			utils.Debugf("Safe to Promote: %s", check)
+			utils.ConsoleOutputf("Safe to Promote: %s", check)
+		} else {
+			utils.Debugf("Not Safe to Promote: %s", check)
+			utils.ConsoleOutputf("Not Safe to Promote: %s", check)
+		}
 	}
-
 	if !result {
 		os.Exit(1)
 	}
@@ -55,15 +49,15 @@ func View() {
 
 	// if the user has specified a gitpath, use that instead of the default
 	// open the git repo
-	repo := openRepo(gitpath)
+	repo := OpenRepo(gitpath)
 
 	// get the environments from the config file.
 	environments := viper.GetStringSlice("environments")
-	resolvedEnvironments := getResolvedEnvironments(environments, repo)
-	printCurrentState(resolvedEnvironments)
+	resolvedEnvironments := GetResolvedEnvironments(environments, repo)
+	PrintCurrentState(resolvedEnvironments)
 }
 
-func getResolvedEnvironments(environments []string, repo *git.Repository) []Environments {
+func GetResolvedEnvironments(environments []string, repo *git.Repository) []Environments {
 	resolvedEnvironments := make([]Environments, 0)
 
 	for i, v := range environments {
@@ -87,13 +81,13 @@ func getResolvedEnvironments(environments []string, repo *git.Repository) []Envi
 		// append the resolved environment to the slice and order it starting from 1.
 		resolvedEnvironments = append(
 			resolvedEnvironments,
-			Environments{Order: i + 1, Name: v, Hash: revHash.String(), isDefaultBranch: defaultBranchBool},
+			Environments{Order: i + 1, Name: v, Hash: revHash.String(), IsDefaultBranch: defaultBranchBool},
 		)
 	}
 	return resolvedEnvironments
 }
 
-func openRepo(gitpath string) *git.Repository {
+func OpenRepo(gitpath string) *git.Repository {
 	if viper.Get("gitpath") != "" {
 		gitpath = viper.GetString("gitpath")
 	}
@@ -114,35 +108,31 @@ func openRepo(gitpath string) *git.Repository {
 	return repo
 }
 
-func promotionSafety(targetEnvironment string, orderedEnvironments []Environments) bool {
+func PromotionSafety(targetEnvironment string, orderedEnvironments []Environments) (bool, bool) {
 	for i, v := range orderedEnvironments {
-		if v.Name == targetEnvironment && v.isDefaultBranch {
+		if v.Name == targetEnvironment && v.IsDefaultBranch {
 			utils.ConsoleOutputf("Target environment `%s` is already at HEAD of default branch", targetEnvironment)
 			utils.Debugf("Target environment `%s` is already at HEAD of default branch", targetEnvironment)
-			os.Exit(1)
+			return false, true
 		}
-		if i > 0 {
-			if v.Name == targetEnvironment && !v.isDefaultBranch && orderedEnvironments[i-1].isDefaultBranch {
-				return true
-			}
-		} else {
-			if v.Name == targetEnvironment && !v.isDefaultBranch {
-				return true
-			}
+
+		if v.Name == targetEnvironment && !v.IsDefaultBranch &&
+			(i == 0 || (i > 0 && orderedEnvironments[i-1].IsDefaultBranch)) {
+			return true, false
 		}
 	}
 
-	return false
+	return false, false
 }
 
-func printCurrentState(orderedEnvironments []Environments) {
+func PrintCurrentState(orderedEnvironments []Environments) {
 	environmentProgressionLine := make([]string, 0)
 
 	// variable for the furthest environment order position.
 	furthestEnvironment := -1
 
 	for _, v := range orderedEnvironments {
-		if v.isDefaultBranch {
+		if v.IsDefaultBranch {
 			furthestEnvironment = v.Order - 1
 		}
 		environmentProgressionLine = append(environmentProgressionLine, v.Name)
